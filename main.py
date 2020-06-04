@@ -24,7 +24,7 @@ users = {}
 isconnected = {}
 session2id = {}
 
-OFFLINE = True
+OFFLINE = False
 
 
 def getroles(uid):
