@@ -56,7 +56,7 @@ def planetcollisionhandler(arbiter, space, data):
             part = arbiter.shapes[0].part
         except AttributeError:
             return True
-    if part is not None and part.owner is not None and planet.partchance == -1:
+    if part is not None and part.owner is not None and planet.partchance == -1 and planet.partclass != None::
         turncargointoparts(gamedaemon.userparts[part.owner], planet, space)
     if part is not None and part.owner is not None:
         gamedaemon.userparts[part.owner].fuel = gamedaemon.userparts[part.owner].getpower()
