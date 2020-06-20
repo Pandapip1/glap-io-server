@@ -63,12 +63,12 @@ def maincollisionhandler(arbiter, space_, data):
     except AttributeError:
         ...
     try:
-      if arbiter.shapes[0].phased:
+      if arbiter.shapes[0].part.phased:
         return False
     except AttributeError:
       ...
     try:
-      if arbiter.shapes[1].phased:
+      if arbiter.shapes[1].part.phased:
         return False
     except AttributeError:
       ...
