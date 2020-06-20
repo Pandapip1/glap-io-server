@@ -67,7 +67,7 @@ def choosenm(websocket, message):
           sessid = int(random.random() * 1000000)
       users[str(sessid)] = message[1]
       session2id[sessid] = None if message[2] == "null" else message[2]
-      canupdatewld[sessid] = True
+      canupdatewld[str(sessid)] = True
       websocket.write_message(u"setsessid " + str(sessid))
   else:
       websocket.write_message(u"setnmerror")
