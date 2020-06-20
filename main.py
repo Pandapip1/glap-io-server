@@ -53,31 +53,6 @@ def getprefixint(uid):
     return 1
 
 
-def checkconnected():
-    while True:
-        todel = []
-        for i in isconnected:
-            try:
-                isconnected[i] -= 1
-            except Exception:
-                ...
-            if not isconnected[i]:
-                try:
-                    gamedaemon.removeuser(users[i])
-                    todel.append(i)
-                except Exception:
-                    ...
-        for i in todel:
-            try:
-                del isconnected[i]
-                del users[i]
-                del session2id[i]
-                del prefixes[i]
-            except Exception:
-                ...
-        time.sleep(1)
-
-
 def uptick():
     if OFFLINE: return
     num = 0
@@ -119,34 +94,23 @@ class GameDaemonWebSocket(tornado.websocket.WebSocketHandler):
         print("WebSocket opened")
         self.set_nodelay(True)
 
-    def on_message(self, message):
+    async def on_message(self, message):
         try:
             message = message.split(" ")
+            if message[0] == "setsessid":
+                self.sessid = message[1]
+                self.user = users[self.sessid]
+                self.write_message("sessidset");
             if message[0] == "getwld":
-                isconnected[users[message[1]]] = 2
-                self.write_message(u"w " + gamedaemon.get_world_2(users[message[1]]))
-            if message[0] == "uup":
-                gamedaemon.trigger(users[message[1]], 0, False)
-            if message[0] == "udown":
-                gamedaemon.trigger(users[message[1]], 0, True)
-            if message[0] == "lup":
-                gamedaemon.trigger(users[message[1]], 1, False)
-            if message[0] == "ldown":
-                gamedaemon.trigger(users[message[1]], 1, True)
-            if message[0] == "dup":
-                gamedaemon.trigger(users[message[1]], 2, False)
-            if message[0] == "ddown":
-                gamedaemon.trigger(users[message[1]], 2, True)
-            if message[0] == "rup":
-                gamedaemon.trigger(users[message[1]], 3, False)
-            if message[0] == "rdown":
-                gamedaemon.trigger(users[message[1]], 3, True)
+                self.write_message(u"w " + gamedaemon.get_world_2(self.user))
+            if message[0] == "trigger":
+                gamedaemon.trigger(self.user, int(message[1]), int(message[2]) != 0)
             if message[0] == "mup":
-                gamedaemon.mouse(users[message[1]], False, False, 0, 0)
+                gamedaemon.mouse(self.user, False, False, 0, 0)
             if message[0] == "mdown":
-                gamedaemon.mouse(users[message[1]], False, True, 0, 0)
+                gamedaemon.mouse(self.user, False, True, 0, 0)
             if message[0] == "mmove":
-                gamedaemon.mouse(users[message[1]], True, False, float(message[2]), float(message[3]))
+                gamedaemon.mouse(self.user, True, False, float(message[1]), float(message[2]))
             if message[0] == "save" and not OFFLINE:
                 def save(uid):
                     db = mysql.connector.connect(
@@ -206,7 +170,12 @@ class GameDaemonWebSocket(tornado.websocket.WebSocketHandler):
             self.write_message(u"error")
             gamedaemon.removeuser(message[1])
 
-    def on_close(self):
+    async def on_close(self):
+        gamedaemon.removeuser(users[self.sessid])
+        del isconnected[self.sessid]
+        del users[self.sessid]
+        del session2id[self.sessid]
+        del prefixes[self.sessid]
         print("WebSocket closed")
 
     def check_origin(self, origin):
@@ -222,7 +191,6 @@ application = tornado.web.Application([
 
 if __name__ == "__main__":
     gamedaemon.trigger_start()
-    Thread(target=checkconnected, daemon=True).start()
     Thread(target=uptick, daemon=True).start()
     http_server = tornado.httpserver.HTTPServer(application, max_body_size=10000000)
     http_server.listen(os.getenv("PORT", 6155))

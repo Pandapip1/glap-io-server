@@ -543,8 +543,8 @@ def thrust():
                 userparts[user].fuel -= 1 / 10.
                 thrustpart(userparts[user], 0, 0, 0)
             if userfire[user][1]:
-                userparts[user].body.apply_force_at_local_point((0, -userparts[user].thrust / 2), (12.5, 12.5))
-                userparts[user].body.apply_force_at_local_point((0, userparts[user].thrust / 2), (-12.5, -12.5))
+                userparts[user].body.apply_force_at_local_point((0, -userparts[user].thrust / 2) * (.1 if userparts[user].connected == [None, None, None, None] else 1), (12.5, 12.5))
+                userparts[user].body.apply_force_at_local_point((0, userparts[user].thrust / 2) * (.1 if userparts[user].connected == [None, None, None, None] else 1), (-12.5, -12.5))
                 userparts[user].fired = True
                 userparts[user].fuel -= 1 / 10.
                 thrustpart(userparts[user], 1, 0, 0)
@@ -555,8 +555,8 @@ def thrust():
                 userparts[user].fuel -= 1 / 10.
                 thrustpart(userparts[user], 2, 0, 0)
             if userfire[user][3]:
-                userparts[user].body.apply_force_at_local_point((0, userparts[user].thrust / 2), (12.5, 12.5))
-                userparts[user].body.apply_force_at_local_point((0, -userparts[user].thrust / 2), (-12.5, -12.5))
+                userparts[user].body.apply_force_at_local_point((0, userparts[user].thrust / 2) * (.1 if userparts[user].connected == [None, None, None, None] else 1), (12.5, 12.5))
+                userparts[user].body.apply_force_at_local_point((0, -userparts[user].thrust / 2) * (.1 if userparts[user].connected == [None, None, None, None] else 1), (-12.5, -12.5))
                 userparts[user].fired = True
                 userparts[user].fuel -= 1 / 10.
                 thrustpart(userparts[user], 3, 0, 0)
