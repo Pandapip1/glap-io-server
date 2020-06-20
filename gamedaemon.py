@@ -53,16 +53,6 @@ def maincollisionhandler(arbiter, space_, data):
     except AttributeError:
         ...
     try:
-        if arbiter.shapes[0].part in userctl.values():
-            return False
-    except AttributeError:
-        ...
-    try:
-        if arbiter.shapes[1].part in userctl.values():
-            return False
-    except AttributeError:
-        ...
-    try:
       if arbiter.shapes[0].part.phased:
         return False
     except AttributeError:
@@ -169,6 +159,7 @@ def mouse(user, mode, down, x, y):
                     if abs(usermouse[user][1] + userparts[user].body.position.x - part.body.position.x) <= 12 and abs(
                             usermouse[user][2] + userparts[user].body.position.y - part.body.position.y) <= 12:
                         userctl[user] = part
+                        part.phased = True
 
                         if part.connectedto is not None:
                             unattach(part, user)
@@ -183,6 +174,7 @@ def mouse(user, mode, down, x, y):
             else:
                 if userctl[user] is not None:
                     userctl[user].body.velocity = Vec2d(0., 0.)
+                    userctl[user].body.angular_velocity = 0
                     userctl[user] = None
     except Exception as e:
         print(e)
@@ -374,9 +366,9 @@ def createpart(planet_, part):
     y += planet_.body.position.y
     part.body.position = (x, y)
     looseparts[part] = 1000
+    part.phased = True
     space.add(part.body, part.poly)
     allparts.append(part)
-    part.phased = True
     return part
 
 
@@ -433,7 +425,6 @@ def rmspeed():
 
 def gravity():
     for part in allparts:
-      if part.phased: continue
       for planet_ in planets:
           from math import sqrt
           delta = planet_.body.position - part.body.position
@@ -583,11 +574,12 @@ def detach():
 
 def control():
     for user in userparts:
-        if userctl[user] is not None:
-            userctl[user].body.velocity = (
-                    (userparts[user].body.position + Vec2d(usermouse[user][1], usermouse[user][2])) - (
-                    userctl[user].body.position + Vec2d(0, 12.5).rotated(userctl[user].body.angle)))
-            userctl[user].body.force = (0, 0)
+        if user in userctl:
+          if userctl[user] is not None:
+              userctl[user].body.velocity = (
+                      (userparts[user].body.position + Vec2d(usermouse[user][1], usermouse[user][2])) - (
+                      userctl[user].body.position + Vec2d(0, 12.5).rotated(userctl[user].body.angle)))
+              userctl[user].body.force = (0, 0)
 
 
 def powerpart(part):
