@@ -35,7 +35,7 @@ space.collision_slop = .1
 reps = [0 for i in range(10)]
 timereps = [0 for i in range(10)]
 
-def ignoreselfcollisons(arbiter, space_, data):
+def maincollisionhandler(arbiter, space_, data):
     planet.planetcollisionhandler(arbiter, space_, data)
     try:
         if arbiter.shapes[1].part.owner == arbiter.shapes[0].part.owner and arbiter.shapes[1].part.owner is not None:
@@ -62,10 +62,20 @@ def ignoreselfcollisons(arbiter, space_, data):
             return False
     except AttributeError:
         ...
+    try:
+      if arbiter.shapes[0].phased:
+        return False
+    except AttributeError:
+      ...
+    try:
+      if arbiter.shapes[1].phased:
+        return False
+    except AttributeError:
+      ...
     return True
 
 
-space.add_default_collision_handler().begin = ignoreselfcollisons
+space.add_default_collision_handler().begin = maincollisionhandler
 
 
 def getpartarray(part):
@@ -366,6 +376,7 @@ def createpart(planet_, part):
     looseparts[part] = 1000
     space.add(part.body, part.poly)
     allparts.append(part)
+    part.phased = True
     return part
 
 
@@ -422,14 +433,15 @@ def rmspeed():
 
 def gravity():
     for part in allparts:
-        for planet_ in planets:
-            from math import sqrt
-            delta = planet_.body.position - part.body.position
-            if abs(delta.x) + abs(delta.y) > planet_.radius * planet_.mass / 10:
-                continue
-            deltadistcubed = delta.x * delta.x + delta.y * delta.y
-            deltadistcubed = deltadistcubed * sqrt(deltadistcubed)
-            part.body.velocity += (10 * planet_.mass / deltadistcubed) * delta
+      if part.phased: continue
+      for planet_ in planets:
+          from math import sqrt
+          delta = planet_.body.position - part.body.position
+          if abs(delta.x) + abs(delta.y) > planet_.radius * planet_.mass / 10:
+              continue
+          deltadistcubed = delta.x * delta.x + delta.y * delta.y
+          deltadistcubed = deltadistcubed * sqrt(deltadistcubed)
+          part.body.velocity += (10 * planet_.mass / deltadistcubed) * delta
 
 
 def attachpt(part):
@@ -615,7 +627,7 @@ def loop():
                 detach()
                 timings[2] += (time.time() - start_time)
                 start_time = time.time()
-                # gravity()
+                gravity()
                 timings[3] += (time.time() - start_time)
                 start_time = time.time()
                 control()
