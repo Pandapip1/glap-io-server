@@ -4,6 +4,7 @@ import random
 import threading
 import time
 import traceback
+import tornado.gen
 
 import pymunk
 from pymunk.constraint import PinJoint, RotaryLimitJoint
@@ -33,7 +34,6 @@ space.collision_slop = .1
 # measure health
 reps = [0 for i in range(10)]
 timereps = [0 for i in range(10)]
-
 
 def ignoreselfcollisons(arbiter, space_, data):
     planet.planetcollisionhandler(arbiter, space_, data)
@@ -543,8 +543,8 @@ def thrust():
                 userparts[user].fuel -= 1 / 10.
                 thrustpart(userparts[user], 0, 0, 0)
             if userfire[user][1]:
-                userparts[user].body.apply_force_at_local_point((0, -userparts[user].thrust / 2) * (.1 if userparts[user].connected == [None, None, None, None] else 1), (12.5, 12.5))
-                userparts[user].body.apply_force_at_local_point((0, userparts[user].thrust / 2) * (.1 if userparts[user].connected == [None, None, None, None] else 1), (-12.5, -12.5))
+                userparts[user].body.apply_force_at_local_point(Vec2d(0, -userparts[user].thrust / 2) * (.1 if userparts[user].connected == [None, None, None, None] else 1), (12.5, 12.5))
+                userparts[user].body.apply_force_at_local_point(Vec2d(0, userparts[user].thrust / 2) * (.1 if userparts[user].connected == [None, None, None, None] else 1), (-12.5, -12.5))
                 userparts[user].fired = True
                 userparts[user].fuel -= 1 / 10.
                 thrustpart(userparts[user], 1, 0, 0)
@@ -555,8 +555,8 @@ def thrust():
                 userparts[user].fuel -= 1 / 10.
                 thrustpart(userparts[user], 2, 0, 0)
             if userfire[user][3]:
-                userparts[user].body.apply_force_at_local_point((0, userparts[user].thrust / 2) * (.1 if userparts[user].connected == [None, None, None, None] else 1), (12.5, 12.5))
-                userparts[user].body.apply_force_at_local_point((0, -userparts[user].thrust / 2) * (.1 if userparts[user].connected == [None, None, None, None] else 1), (-12.5, -12.5))
+                userparts[user].body.apply_force_at_local_point(Vec2d(0, userparts[user].thrust / 2) * (.1 if userparts[user].connected == [None, None, None, None] else 1), (12.5, 12.5))
+                userparts[user].body.apply_force_at_local_point(Vec2d(0, -userparts[user].thrust / 2) * (.1 if userparts[user].connected == [None, None, None, None] else 1), (-12.5, -12.5))
                 userparts[user].fired = True
                 userparts[user].fuel -= 1 / 10.
                 thrustpart(userparts[user], 3, 0, 0)
@@ -645,9 +645,6 @@ def loop():
         exit()
 
 
-gamethread = threading.Thread(target=loop, daemon=True)
-
-
 def trigger_start():
     planets.append(planet.planet(0., 10000, None, 30000, None, [], -1, "yellow", space, "sun", 10000))
     planets.append(planet.planet(30000, 150, planets[0], 400., parts.Cargo, (), .01, "cyan", space, "earth", 150))
@@ -663,4 +660,4 @@ def trigger_start():
     planets.append(
         planet.planet(50000, 400, planets[0], 1000, parts.GeneratorHub, [], -1, "yellow", space, "iAmAlbert", 400))
     planets.append(planet.planet(1500, 50, planets[1], 125, parts.LandingBooster, (), -1, "grey", space, "moon", 50))
-    gamethread.start()
+    threading.Thread(target=loop, daemon=True).start()
