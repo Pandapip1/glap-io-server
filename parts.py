@@ -11,6 +11,7 @@ class Part:
         self.connectedto = None
         self.direction = 0
         # --#
+        self.phased = False
         self.owner = None
         self.mass = mass
         self.image = img
