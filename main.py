@@ -218,6 +218,7 @@ application = tornado.web.Application([
 if __name__ == "__main__":
     gamedaemon.trigger_start()
     Thread(target=uptick, daemon=True).start()
+    Thread(target=sendworlds, daemon=True).start()
     http_server = tornado.httpserver.HTTPServer(application, max_body_size=10000000)
     http_server.listen(os.getenv("PORT", 6155))
     tornado.ioloop.IOLoop.instance().start()
