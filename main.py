@@ -99,7 +99,7 @@ def sendworlds():
   while True:
     for websocket in websockets:
       websocket.write_message(u"w " + gamedaemon.get_world_2(websocket.user))
-    time.sleep(.5)
+    time.sleep(.05)
 
 def getroles(uid):
     asyncio.set_event_loop(asyncio.new_event_loop())
