@@ -26,6 +26,7 @@ users = {}
 isconnected = {}
 session2id = {}
 canupdatewld = {}
+websockets = []
 
 
 OFFLINE = False
@@ -76,6 +77,7 @@ def setsessid(websocket, message):
   websocket.sessid = message[1]
   websocket.user = users[websocket.sessid]
   websocket.write_message("sessidset")
+  websockets.append(websocket)
 
 def save(uid):
   asyncio.set_event_loop(asyncio.new_event_loop())
@@ -92,15 +94,12 @@ def save(uid):
   db.commit()
   db.disconnect()
 
-def sendworld(websocket):
-  if websocket.user not in canupdatewld.keys():
-    canupdatewld[websocket.user] = True
-    return
-  if canupdatewld[websocket.user]:
-    canupdatewld[websocket.user] = False
-    asyncio.set_event_loop(asyncio.new_event_loop())
-    websocket.write_message(u"w " + gamedaemon.get_world_2(websocket.user))
-    canupdatewld[websocket.user] = True
+def sendworlds():
+  asyncio.set_event_loop(asyncio.new_event_loop())
+  while True:
+    for websocket in websockets:
+      websocket.write_message(u"w " + gamedaemon.get_world_2(websocket.user))
+    time.sleep(.5)
 
 def getroles(uid):
     asyncio.set_event_loop(asyncio.new_event_loop())
@@ -177,8 +176,6 @@ class GameDaemonWebSocket(tornado.websocket.WebSocketHandler):
             message = message.split(" ")
             if message[0] == "setsessid":
                 Thread(target=setsessid, args=(self, message)).start()
-            if message[0] == "getwld":
-                Thread(target=sendworld, args=(self,)).start()
             if message[0] == "trigger":
                 Thread(target=gamedaemon.trigger, args=(self.user, int(message[1]), int(message[2]) != 0)).start()
             if message[0] == "mup":
