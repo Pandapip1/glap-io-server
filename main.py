@@ -170,7 +170,7 @@ class GameDaemonWebSocket(tornado.websocket.WebSocketHandler):
             self.write_message(u"error")
             gamedaemon.removeuser(message[1])
 
-    async def on_close(self):
+    def on_close(self):
         gamedaemon.removeuser(users[self.sessid])
         del isconnected[self.sessid]
         del users[self.sessid]
