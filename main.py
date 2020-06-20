@@ -67,7 +67,6 @@ def choosenm(websocket, message):
           sessid = int(random.random() * 1000000)
       users[str(sessid)] = message[1]
       session2id[sessid] = None if message[2] == "null" else message[2]
-      canupdatewld[str(sessid)] = True
       websocket.write_message(u"setsessid " + str(sessid))
   else:
       websocket.write_message(u"setnmerror")
@@ -94,11 +93,14 @@ def save(uid):
   db.disconnect()
 
 def sendworld(websocket):
-  if canupdatewld[websocket.sessid]:
-    canupdatewld[websocket.sessid] = False
+  if websocket.user not in canupdatewld.keys():
+    canupdatewld[websocket.user] = True
+    return
+  if canupdatewld[websocket.user]:
+    canupdatewld[websocket.user] = False
     asyncio.set_event_loop(asyncio.new_event_loop())
     websocket.write_message(u"w " + gamedaemon.get_world_2(websocket.user))
-    canupdatewld[websocket.sessid] = True
+    canupdatewld[websocket.user] = True
 
 def getroles(uid):
     asyncio.set_event_loop(asyncio.new_event_loop())
