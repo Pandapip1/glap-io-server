@@ -366,7 +366,6 @@ def createpart(planet_, part):
     y += planet_.body.position.y
     part.body.position = (x, y)
     looseparts[part] = 1000
-    part.phased = True
     space.add(part.body, part.poly)
     allparts.append(part)
     return part

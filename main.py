@@ -52,7 +52,7 @@ def choosenm(websocket, message):
           if message[1] in savednames:
               nt = True
       fetchone = ""
-      if message[2] != "none  ":
+      if message[2] != "none":
           cursor.execute("SELECT saves FROM users WHERE UID='" + message[2] + "'")
           fetchone = cursor.fetchone()[0]
       save = fetchone if fetchone != "" else "[0,[null,null,null,null]]"
@@ -202,6 +202,7 @@ class GameDaemonWebSocket(tornado.websocket.WebSocketHandler):
           del users[self.sessid]
           del session2id[self.sessid]
           del prefixes[self.sessid]
+          websockets.remove(websocket)
         print("WebSocket closed")
 
     def check_origin(self, origin):
