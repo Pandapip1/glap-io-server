@@ -75,7 +75,8 @@ def choosenm(websocket, message):
 def setsessid(websocket, message):
   asyncio.set_event_loop(asyncio.new_event_loop())
   websocket.sessid = message[1]
-  websocket.user = users[websocket.sessid]
+  if message[2] != null:
+    websocket.user = users[websocket.sessid]
   websocket.write_message("sessidset")
   websockets.append(websocket)
 
