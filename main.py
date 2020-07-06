@@ -52,7 +52,7 @@ def choosenm(websocket, message):
           if message[1] in savednames:
               nt = True
       fetchone = ""
-      if message[2] != "none":
+      if message[2] != "null":
           cursor.execute("SELECT saves FROM users WHERE UID='" + message[2] + "'")
           fetchone = cursor.fetchone()[0]
       save = fetchone if fetchone != "" else "[0,[null,null,null,null]]"
@@ -103,7 +103,7 @@ def sendworlds():
 
 def getroles(uid):
     asyncio.set_event_loop(asyncio.new_event_loop())
-    if OFFLINE:
+    if OFFLINE or uid == "none":
         return [False for i in range(4)]
     db = mysql.connector.connect(
         host=os.getenv("DB_HOST"),
