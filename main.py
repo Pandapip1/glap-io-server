@@ -175,15 +175,15 @@ class GameDaemonWebSocket(tornado.websocket.WebSocketHandler):
         try:
             message = message.split(" ")
             if message[0] == "setsessid":
-                Thread(target=setsessid, args=(self, message)).start()
+                setsessid(self, message)
             if message[0] == "trigger":
-                Thread(target=gamedaemon.trigger, args=(self.user, int(message[1]), int(message[2]) != 0)).start()
+                gamedaemon.trigger(self.user, int(message[1]), int(message[2]) != 0)
             if message[0] == "mup":
-              Thread(target=gamedaemon.mouse, args=(self.user, False, False, 0, 0)).start()
+              gamedaemon.mouse(self.user, False, False, 0, 0)
             if message[0] == "mdown":
-              Thread(target=gamedaemon.mouse, args=(self.user, False, True, 0, 0)).start()
+              gamedaemon.mouse(self.user, False, True, 0, 0)
             if message[0] == "mmove":
-              Thread(target=gamedaemon.mouse, args=(self.user, True, False, float(message[1]), float(message[2]))).start()
+              gamedaemon.mouse(self.user, True, False, float(message[1]), float(message[2]))
             if message[0] == "save" and not OFFLINE:
                 if session2id[int(message[1])] is not None:
                     Thread(target=save, args=(message[1],)).start()
